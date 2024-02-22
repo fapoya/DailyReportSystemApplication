@@ -41,21 +41,6 @@ public class Report {
     @Length(max = 10)
     private String code;
 
-    // 名前
-    @Column(length = 20, nullable = false)
-    @NotEmpty
-    @Length(max = 20)
-    private String name;
-
-    // 権限
-    @Column(columnDefinition="VARCHAR(10)", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    // パスワード
-    @Column(length = 255, nullable = false)
-    private String password;
-
     // 削除フラグ(論理削除を行うため)
     @Column(columnDefinition="TINYINT", nullable = false)
     private boolean deleteFlg;
@@ -67,6 +52,10 @@ public class Report {
     // 更新日時
     private LocalDateTime updatedAt;
 
+    //日報作成日時
+    @Column(nullable = false)
+    private LocalDateTime report_date;
+
     //タイトル
     @Column(length = 20, nullable = false)
     @NotEmpty
@@ -77,5 +66,4 @@ public class Report {
     @Column(columnDefinition="LONGTEXT", nullable = false)
     @NotEmpty
     private String content;
-
 }
