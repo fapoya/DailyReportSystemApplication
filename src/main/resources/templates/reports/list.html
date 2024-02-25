@@ -12,37 +12,6 @@
             <!-- コンテンツ -->
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">日報 一覧</h1>
-                <div sec:authorize="hasAuthority('ADMIN')">
-                <!-- ここにADMIN専用のコンテンツを配置 -->
-                <div class="row">
-                    <div class="col-xl-11">
-                        <div class="card">
-                            <div class="card-body">
-                                <table class="table table-striped w-100">
-                                    <thead>
-                                        <tr>
-                                            <th>社員番号</th>
-                                            <th>氏名</th>
-                                            <th>タイトル</th>
-                                            <th><a th:href="@{/reports/add}" class="btn btn-primary">詳細</a></th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="report:${reportList}">
-                                            <td class="align-middle" th:text="${report.code}"></td>
-                                            <td class="align-middle" th:text="${report.name}"></td>
-                                            <td class="align-middle"><a th:href="@{/report/{code}/(code=${report.code})}" class="btn btn-primary">詳細</a></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        </div>
-                        <p class="mb-3" th:text="'（ 全' + ${listSize} + '件 ）'">
-                <div>
-                <div sec:authorize="isAuthenticated()">
-                <!-- ここに一般ユーザーも閲覧可能なコンテンツを配置 -->
                 <div class="row">
                     <div class="col-xl-11">
                         <div class="card">
@@ -58,17 +27,20 @@
                                     </thead>
                                     <tbody>
                                         <tr th:each="report:${reportList}">
-                                            <td class="align-middle" th:text="${report.name}"></td>
-                                            <td class="align-middle" th:text="${report.date}"></td>
+                                            <td class="align-middle" th:text="${report.employee.name}"></td>
+                                            <td class="align-middle" th:text="${report.reportDate}"></td>
                                             <td class="align-middle" th:text="${report.title}"></td>
-                                            <td class="align-middle"><a th:href="@{/report/{code}/(code=${report.code})}" class="btn btn-primary">詳細</a></td>
+                                            <td class="align-middle"><a th:href="@{/reports/{code}/(code=${report.employee.code})}" class="btn btn-primary">詳細</a></td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+                    </div>
+                        <div>
+                            <p class="mb-3" th:text="'（ 全' + ${listSize} + '件 ）'">
                         </div>
-                        <p class="mb-3" th:text="'（ 全' + ${listSize} + '件 ）'">
+                        <div>
                             <a th:href="@{/reports/add}" class="btn btn-primary">登録</a>
                         </div>
                     </div>

@@ -3,150 +3,106 @@ package com.techacademy.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Employee;
+import com.techacademy.entity.Report;
 import com.techacademy.repository.EmployeeRepository;
+import com.techacademy.repository.ReportRepository;
+
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 
 @Service
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
-        this.employeeRepository = employeeRepository;
-            this.passwordEncoder = passwordEncoder;
+    public ReportService(ReportRepository reportRepository, PasswordEncoder passwordEncoder) {
+        this.reportRepository = reportRepository;
     }
 
-        // 従業員保存
+    // 日報保存
         @Transactional
-        public ErrorKinds save(Employee employee) {
+        public ErrorKinds save(Report report) {
 
-            // パスワードチェック
-            ErrorKinds result = employeePasswordCheck(employee);
-            if (ErrorKinds.CHECK_OK != result) {
-                return result;
-            }
-
-            // 従業員番号重複チェック
-            if (findByCode(employee.getCode()) != null) {
-                return ErrorKinds.DUPLICATE_ERROR;
-            }
-
-            employee.setDeleteFlg(false);
+            report.setDeleteFlg(false);
 
             LocalDateTime now = LocalDateTime.now();
-            employee.setCreatedAt(now);
-            employee.setUpdatedAt(now);
+            report.setCreatedAt(now);
+            report.setUpdatedAt(now);
 
-            employeeRepository.save(employee);
+            reportRepository.save(report);
             return ErrorKinds.SUCCESS;
         }
 
 
         // 更新（追加）を行なう
-
         @Transactional
-        public ErrorKinds update(String code, Employee updatedEmployee) {
-            Optional<Employee> existingEmployeeOpt = employeeRepository.findById(code);
-            if (!existingEmployeeOpt.isPresent()) {
-                return ErrorKinds.BLANK_ERROR; // 従業員が見つからない場合のエラー処理
+        public ErrorKinds update(String EmployeeCode, Report updatedReport) {
+            Optional<Report> existingReportOpt = reportRepository.findById(EmployeeCode);
+            if (!existingReportOpt.isPresent()) {
+                return ErrorKinds.BLANK_ERROR; // レポートが見つからない場合のエラー処理
             }
-            Employee existingEmployee = existingEmployeeOpt.get();
+            Report existingReport = existingReportOpt.get();
 
-            //パスワードが空でない場合にのみ、新しいパスワードを設定
-            if(updatedEmployee.getPassword() == null || updatedEmployee.getPassword().isEmpty()) {
-               updatedEmployee.setPassword(existingEmployee.getPassword());
-            }
-
-            // 既存のcreated_atの値を新しいEmployeeオブジェクトに設定
-            updatedEmployee.setCreatedAt(existingEmployee.getCreatedAt());
+            // 既存のcreated_atの値を新しいReportオブジェクトに設定
+            updatedReport.setCreatedAt(existingReport.getCreatedAt());
 
             // 更新処理でupdatedAtのみを現在時刻に設定
-            updatedEmployee.setUpdatedAt(LocalDateTime.now());
+            updatedReport.setUpdatedAt(LocalDateTime.now());
 
             // リポジトリを使用してデータベースに保存
-            employeeRepository.save(updatedEmployee);
+            reportRepository.save(updatedReport);
 
             return ErrorKinds.SUCCESS;
         }
 
 
-        // 従業員削除
+        // 日報削除
         @Transactional
-        public ErrorKinds delete(String code, UserDetail userDetail) {
+        public ErrorKinds delete(String employeeCode, UserDetail userDetail) {
 
             // 自分を削除しようとした場合はエラーメッセージを表示
-            if (code.equals(userDetail.getEmployee().getCode())) {
+            if (employeeCode.equals(userDetail.getEmployee().getCode())) {
                 return ErrorKinds.LOGINCHECK_ERROR;
             }
-            Employee employee = findByCode(code);
+            Report report = findByCode(employeeCode);
             LocalDateTime now = LocalDateTime.now();
-            employee.setUpdatedAt(now);
-            employee.setDeleteFlg(true);
+            report.setUpdatedAt(now);
+            report.setDeleteFlg(true);
 
             return ErrorKinds.SUCCESS;
         }
 
-        // 従業員一覧表示処理
-        public List<Employee> findAll() {
-            return employeeRepository.findAll();
+        private Report findByCode(String employeeCode) {
+            return null;
+        }
+
+        // 日報一覧表示処理
+        public List<Report> findAll() {
+            return reportRepository.findAll();
         }
 
         // 1件を検索
-        public Employee findByCode(String code) {
-            // findByIdで検索
-            Optional<Employee> option = employeeRepository.findById(code);
-            // 取得できなかった場合はnullを返す
-            Employee employee = option.orElse(null);
-            return employee;
-        }
 
-        // 従業員パスワードチェック
-        public ErrorKinds employeePasswordCheck(Employee employee) {
 
-            // 従業員パスワードの半角英数字チェック処理
-            if (isHalfSizeCheckError(employee)) {
-
-                return ErrorKinds.HALFSIZE_ERROR;
+        // ロールに基づいて日報を取得
+        public List<Report> findReportsByUserIdAndRole(String EmployeeCode, String role) {
+            if ("ADMIN".equals(role)) {
+                // 管理者の場合、全ての日報を取得
+                return reportRepository.findAll();
+            } else {
+                // 一般ユーザーの場合、そのユーザーの日報のみを取得
+                // findByIdで検索
+                return reportRepository.findByEmployeeCode(EmployeeCode);
             }
-
-            // 従業員パスワードの8文字～16文字チェック処理
-            if (isOutOfRangePassword(employee)) {
-
-                return ErrorKinds.RANGECHECK_ERROR;
-            }
-
-            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
-
-            return ErrorKinds.CHECK_OK;
         }
 
-        // 従業員パスワードの半角英数字チェック処理
-        private boolean isHalfSizeCheckError(Employee employee) {
-
-            // 半角英数字チェック
-            Pattern pattern = Pattern.compile("^[A-Za-z0-9]+$");
-            Matcher matcher = pattern.matcher(employee.getPassword());
-            return !matcher.matches();
-        }
-
-        // 従業員パスワードの8文字～16文字チェック処理
-        public boolean isOutOfRangePassword(Employee employee) {
-
-            // 桁数チェック
-            int passwordLength = employee.getPassword().length();
-            return passwordLength < 8 || 16 < passwordLength;
-        }
-
-    }
+}
