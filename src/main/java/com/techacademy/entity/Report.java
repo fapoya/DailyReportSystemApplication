@@ -46,14 +46,15 @@ public class Report {
     private LocalDate reportDate;
 
     //タイトル
-    @Column(length = 20, nullable = false)
+    @Column(length = 100, nullable = false)
     @NotEmpty
-    @Length(max = 20)
+    @Length(max = 100)
     private String title;
 
     //内容
-    @Column(columnDefinition="LONGTEXT", nullable = false)
+    @Column(columnDefinition="LONGTEXT",length = 600, nullable = false)
     @NotEmpty
+    @Length(max = 600)
     private String content;
 
     // 削除フラグ(論理削除を行うため)

@@ -11,5 +11,4 @@ public interface ReportRepository extends JpaRepository<Report, String> {
 
     List<Report> findByEmployeeCode(String employeeCode);
  // ReportRepository内
-
 }

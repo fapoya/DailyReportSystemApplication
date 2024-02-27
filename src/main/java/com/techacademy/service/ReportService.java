@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,25 +66,7 @@ public class ReportService {
         }
 
 
-        // 日報削除
-        @Transactional
-        public ErrorKinds delete(String employeeCode, UserDetail userDetail) {
 
-            // 自分を削除しようとした場合はエラーメッセージを表示
-            if (employeeCode.equals(userDetail.getEmployee().getCode())) {
-                return ErrorKinds.LOGINCHECK_ERROR;
-            }
-            Report report = findByCode(employeeCode);
-            LocalDateTime now = LocalDateTime.now();
-            report.setUpdatedAt(now);
-            report.setDeleteFlg(true);
-
-            return ErrorKinds.SUCCESS;
-        }
-
-        private Report findByCode(String employeeCode) {
-            return null;
-        }
 
         // 日報一覧表示処理
         public List<Report> findAll() {
@@ -103,6 +86,14 @@ public class ReportService {
                 // findByIdで検索
                 return reportRepository.findByEmployeeCode(EmployeeCode);
             }
+        }
+        // 1件を検索
+        public Report findByCode(String employeeCode) {
+            // findByIdで検索
+            Optional<Report> option = reportRepository.findById(employeeCode);
+            // 取得できなかった場合はnullを返す
+            Report report = option.orElse(null);
+            return report;
         }
 
 }
