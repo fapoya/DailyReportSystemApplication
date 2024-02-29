@@ -68,10 +68,4 @@ public class Report {
 
     // 更新日時
     private LocalDateTime updatedAt;
-
-    public void setEmployeeCode(String employeeCode) {
-        // TODO 自動生成されたメソッド・スタブ
-
-    }
-
 }

@@ -60,7 +60,7 @@ public class ReportController {
 
         // 日報詳細画面
         @GetMapping(value = "/{id}/")
-        public String detail(@PathVariable String id, Model model) {
+        public String detail(@PathVariable Long id, Model model) {
 
             model.addAttribute("report", reportService.findByCode(id));
             return "reports/detail";
@@ -76,10 +76,10 @@ public class ReportController {
                 // 従業員の名前をモデルに追加
                 model.addAttribute("name", employee.getName());
              // UserDetailからemployee_codeを取得
-                String employeeCode = employee.getCode(); // これは例です。実際のメソッド名や取得方法は実装に依存します。
+                String employeeCode = employee.getCode();
 
                 // Reportオブジェクトにemployee_codeを設定
-                report.setEmployeeCode(employeeCode);
+                report.setEmployee(employee);
 
             return "reports/new";
         }
@@ -115,7 +115,7 @@ public class ReportController {
 
         //日報更新
         @GetMapping("/{id}/update")
-        public String edit(@PathVariable String id, Model model, Report report) {
+        public String edit(@PathVariable Long id, Model model, Report report) {
 
             if(id != null) {
                 model.addAttribute("report", reportService.findByCode(id));
@@ -130,7 +130,7 @@ public class ReportController {
 
         //日報更新処理
         @PostMapping("/{id}/update")
-        public String update(@Validated Report report, BindingResult res, @PathVariable String id, Model model) {
+        public String update(@Validated Report report, BindingResult res, @PathVariable Long id, Model model) {
 
             if (res.hasErrors()) {
                 // バリデーションエラーがある場合
