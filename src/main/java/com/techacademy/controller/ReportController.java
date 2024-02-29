@@ -60,10 +60,10 @@ public class ReportController {
         }
 
         // 日報詳細画面
-        @GetMapping(value = "/{employeeCode}/")
-        public String detail(@PathVariable String employeeCode, Model model) {
+        @GetMapping(value = "/{id}/")
+        public String detail(@PathVariable String id, Model model) {
 
-            model.addAttribute("report", reportService.findByCode(employeeCode));
+            model.addAttribute("report", reportService.findByCode(id));
             return "reports/detail";
         }
 
@@ -95,6 +95,35 @@ public class ReportController {
          // Report登録
             reportService.saveReport(report);
 
+            return "redirect:/reports";
+        }
+
+        //日報更新
+        @GetMapping("/{id}/update")
+        public String edit(@PathVariable String id, Model model, Report report) {
+
+            if(id != null) {
+                model.addAttribute("report", reportService.findByCode(id));
+            }else {
+                // Modelに登録
+
+            model.addAttribute("report", report);
+            }
+
+        return "reports/update";
+        }
+
+        //日報更新処理
+        @PostMapping("/{id}/update")
+        public String update(@Validated Report report, BindingResult res, @PathVariable String id, Model model) {
+
+            if (res.hasErrors()) {
+                // バリデーションエラーがある場合
+                model.addAttribute("report", report);
+                return edit(null, model, report);
+            }
+            // 日報の更新処理
+            reportService.update(id, report);
             return "redirect:/reports";
         }
 }

@@ -46,8 +46,8 @@ public class ReportService {
 
         // 更新（追加）を行なう
         @Transactional
-        public ErrorKinds update(String EmployeeCode, Report updatedReport) {
-            Optional<Report> existingReportOpt = reportRepository.findById(EmployeeCode);
+        public ErrorKinds update(String id, Report updatedReport) {
+            Optional<Report> existingReportOpt = reportRepository.findById(id);
             if (!existingReportOpt.isPresent()) {
                 return ErrorKinds.BLANK_ERROR; // レポートが見つからない場合のエラー処理
             }
@@ -66,20 +66,21 @@ public class ReportService {
         }
 
         // ロールに基づいて日報を取得
-        public List<Report> findReportsByUserIdAndRole(String EmployeeCode, String role) {
+        public List<Report> findReportsByUserIdAndRole(String id, String role) {
             if ("ADMIN".equals(role)) {
                 // 管理者の場合、全ての日報を取得
                 return reportRepository.findAll();
             } else {
                 // 一般ユーザーの場合、そのユーザーの日報のみを取得
                 // findByIdで検索
-                return reportRepository.findByEmployeeCode(EmployeeCode);
+                return reportRepository.findByEmployeeCode(id);
             }
         }
-        // 1件を検索
-        public Report findByCode(String employeeCode) {
+
+         // 1件を検索
+        public Report findByCode(String id) {
             // findByIdで検索
-            Optional<Report> option = reportRepository.findById(employeeCode);
+            Optional<Report> option = Optional.ofNullable(reportRepository.findById(id).get());
             // 取得できなかった場合はnullを返す
             Report report = option.orElse(null);
             return report;
