@@ -58,60 +58,40 @@ public class ReportController {
             return "reports/list";
         }
 
-        // 従業員詳細画面
-        @GetMapping(value = "/{employeeCode}/")
-        public String detail(@PathVariable String employeeCode, Model model) {
+        // 日報詳細画面
+        @GetMapping(value = "/{id}/")
+        public String detail(@PathVariable String id, Model model) {
 
-            model.addAttribute("report", reportService.findByCode(employeeCode));
+            model.addAttribute("report", reportService.findByCode(id));
             return "reports/detail";
         }
 
-        // 従業員新規登録画面
+        // 日報新規登録画面
         @GetMapping(value = "/add")
         public String create(@ModelAttribute Report report, Model model, @AuthenticationPrincipal UserDetail userDetails) {
-            if (userDetails != null) {
+
+                model.addAttribute(userDetails.getEmployee());
+                // 従業員オブジェクトを取得
                 Employee employee = userDetails.getEmployee();
-                // Employee情報をModelに追加
+                // 従業員の名前をモデルに追加
                 model.addAttribute("name", employee.getName());
-            } else {
-                // エラーハンドリング: 認証されていない場合や、期待したUserDetailが取得できなかった場合の処理
-                return "redirect:/reports";
-            }
+             // UserDetailからemployee_codeを取得
+                String employeeCode = employee.getCode(); // これは例です。実際のメソッド名や取得方法は実装に依存します。
+
+                // Reportオブジェクトにemployee_codeを設定
+                report.setEmployeeCode(employeeCode);
+
             return "reports/new";
         }
 
-        // 従業員新規登録処理
+        // 日報新規登録処理
         @PostMapping(value = "/add")
-        public String add(@Validated Report report, BindingResult res, Model model) {
+        public String add(@Validated Report report, BindingResult res, Model model,@AuthenticationPrincipal UserDetail userDetails) {
 
-            // 空白チェック
-            /*
-             * エンティティ側の入力チェックでも実装は行えるが、更新の方でパスワードが空白でもチェックエラーを出さずに
-             * 更新出来る仕様となっているため上記を考慮した場合に別でエラーメッセージを出す方法が簡単だと判断
-             */
-            if ("".equals(report.getReportDate())) {
-                // 日付が空白だった場合
-                model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                        ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
-                return create(report, model, null);
-            }
-            if ("".equals(report.getTitle())) {
-                // タイトルが空白だった場合
-                model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                        ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
-                return create(report, model, null);
-            }
-            if ("".equals(report.getContent())) {
-                // 内容が空白だった場合
-                model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                        ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
-                return create(report, model, null);
-            }
             // 入力チェック
             if (res.hasErrors()) {
-                return create(report, model, null);
+                return create(report, model, userDetails);
             }
-
             // 論理削除を行った従業員番号を指定すると例外となるためtry~catchで対応
             // (findByIdでは削除フラグがTRUEのデータが取得出来ないため)
             try {
@@ -119,14 +99,46 @@ public class ReportController {
 
                 if (ErrorMessage.contains(result)) {
                     model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                    return create(report, model, null);
+                    return create(report, model, userDetails);
                 }
 
             } catch (DataIntegrityViolationException e) {
-                model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DATECHECK_ERROR),
-                        ErrorMessage.getErrorValue(ErrorKinds.DATECHECK_ERROR));
-                return create(report, model, null);
+                model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
+                        ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
+                return create(report, model, userDetails);
             }
+
+         // Report登録
+
+            return "redirect:/reports";
+        }
+
+        //日報更新
+        @GetMapping("/{id}/update")
+        public String edit(@PathVariable String id, Model model, Report report) {
+
+            if(id != null) {
+                model.addAttribute("report", reportService.findByCode(id));
+            }else {
+                // Modelに登録
+
+            model.addAttribute("report", report);
+            }
+
+        return "reports/update";
+        }
+
+        //日報更新処理
+        @PostMapping("/{id}/update")
+        public String update(@Validated Report report, BindingResult res, @PathVariable String id, Model model) {
+
+            if (res.hasErrors()) {
+                // バリデーションエラーがある場合
+                model.addAttribute("report", report);
+                return edit(null, model, report);
+            }
+            // 日報の更新処理
+            reportService.update(id, report);
             return "redirect:/reports";
         }
 }

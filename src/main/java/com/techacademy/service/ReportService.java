@@ -19,14 +19,33 @@ import com.techacademy.repository.ReportRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
+import lombok.Data;
+
 @Service
+@Data
 public class ReportService {
 
     private final ReportRepository reportRepository;
 
     @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
     public ReportService(ReportRepository reportRepository, PasswordEncoder passwordEncoder) {
         this.reportRepository = reportRepository;
+    }
+
+    public void addReport(String employeeCode, Report report) {
+        // 特定の従業員コードに基づいてEmployeeオブジェクトを検索
+        Employee employee = employeeRepository.findByCode(employeeCode);
+
+        if (employee != null) {
+            // ReportオブジェクトにEmployeeオブジェクトを設定
+            report.setEmployee(employee);
+
+            // Reportオブジェクトをデータベースに保存
+            reportRepository.save(report);
+        }
     }
 
     // 日報保存
@@ -46,8 +65,8 @@ public class ReportService {
 
         // 更新（追加）を行なう
         @Transactional
-        public ErrorKinds update(String EmployeeCode, Report updatedReport) {
-            Optional<Report> existingReportOpt = reportRepository.findById(EmployeeCode);
+        public ErrorKinds update(Long id, Report updatedReport) {
+            Optional<Report> existingReportOpt = reportRepository.findById(id);
             if (!existingReportOpt.isPresent()) {
                 return ErrorKinds.BLANK_ERROR; // レポートが見つからない場合のエラー処理
             }
@@ -65,35 +84,39 @@ public class ReportService {
             return ErrorKinds.SUCCESS;
         }
 
-
-
-
-        // 日報一覧表示処理
-        public List<Report> findAll() {
-            return reportRepository.findAll();
-        }
-
-        // 1件を検索
-
-
         // ロールに基づいて日報を取得
-        public List<Report> findReportsByUserIdAndRole(String EmployeeCode, String role) {
+        public List<Report> findReportsByUserIdAndRole(String id, String role) {
             if ("ADMIN".equals(role)) {
                 // 管理者の場合、全ての日報を取得
                 return reportRepository.findAll();
             } else {
                 // 一般ユーザーの場合、そのユーザーの日報のみを取得
                 // findByIdで検索
-                return reportRepository.findByEmployeeCode(EmployeeCode);
+                return reportRepository.findByEmployeeCode(id);
             }
         }
-        // 1件を検索
-        public Report findByCode(String employeeCode) {
+
+         // 1件を検索
+        public Report findByCode(Long id) {
             // findByIdで検索
-            Optional<Report> option = reportRepository.findById(employeeCode);
+            Optional<Report> option = Optional.ofNullable(reportRepository.findById(id).get());
             // 取得できなかった場合はnullを返す
             Report report = option.orElse(null);
             return report;
+        }
+
+        /** 日報の登録を行なう */
+        @Transactional
+        public Report saveReport(Report report) {
+            report.setDeleteFlg(false);
+
+            LocalDateTime now = LocalDateTime.now();
+            report.setCreatedAt(now);
+            report.setUpdatedAt(now);
+
+            reportRepository.save(report);
+            return reportRepository.save(report);
+
         }
 
 }

@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -40,20 +41,20 @@ public class Report {
     private Long id;
 
     //日報日付
-    @NotNull
+    @NotNull(message="値を入力してください")
     @Column(nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate reportDate;
 
     //タイトル
     @Column(length = 100, nullable = false)
-    @NotEmpty
+    @NotBlank(message="値を入力してください")
     @Length(max = 100)
     private String title;
 
     //内容
     @Column(columnDefinition="LONGTEXT",length = 600, nullable = false)
-    @NotEmpty
+    @NotBlank(message="値を入力してください")
     @Length(max = 600)
     private String content;
 
@@ -67,5 +68,10 @@ public class Report {
 
     // 更新日時
     private LocalDateTime updatedAt;
+
+    public void setEmployeeCode(String employeeCode) {
+        // TODO 自動生成されたメソッド・スタブ
+
+    }
 
 }

@@ -39,7 +39,7 @@
                                         <p class="mb-1"></p>
                                         <div class="col-md-7">
                                             <input class="form-control" type="text" th:field="*{title}" th:errorclass="err" id="title">
-                                            <span th:errors="*{title}" class="text-danger"></span>
+                                            <span th:errors="*{title}" class="err"></span>
                                         </div>
                                     </tr>
                                     </div>
@@ -47,8 +47,8 @@
                                     <tr>
                                         <div>
                                            <label for="content" class="form-label">内容</label>
-                                           <textarea class="form-control" type="text" th:field="*{content}" id="content"></textarea>
-                                           <span th:errors="*{content}" class="text-danger"></span>
+                                           <textarea class="form-control" type="text" th:field="*{content}" th:errorclass="err" id="content"></textarea>
+                                           <span th:errors="*{content}" class="err"></span>
                                         </div>
                                     </tr>
                                     </div>
