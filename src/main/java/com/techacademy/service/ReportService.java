@@ -1,5 +1,6 @@
 package com.techacademy.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +103,11 @@ public class ReportService {
         public void add(Report report, UserDetail userDetails) {
             // TODO 自動生成されたメソッド・スタブ
 
+        }
+
+        // 新規日報が既に存在する日付に対して登録されようとしていないか検証するメソッド
+        public boolean isReportDateAlreadyExists(String employeeCode, LocalDate reportDate) {
+            return reportRepository.findByEmployee_CodeAndReportDate(employeeCode, reportDate).isPresent();
         }
 
 }

@@ -103,6 +103,12 @@ public class ReportController {
                 return "reports/new";
             }
 
+            // 日付が既に登録されているか検証
+            if (reportService.isReportDateAlreadyExists(employee.getCode(), report.getReportDate())) {
+                model.addAttribute("reportDateError", "既に登録されている日付です。");
+                return "reports/new";
+            }
+
 
          // Report登録
             reportService.saveReport(report);
