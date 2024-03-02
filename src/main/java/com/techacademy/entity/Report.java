@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 @SQLRestriction("delete_flg = false")
 public class Report {
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "employee_code", referencedColumnName = "code", nullable = false)
     private Employee employee;
 

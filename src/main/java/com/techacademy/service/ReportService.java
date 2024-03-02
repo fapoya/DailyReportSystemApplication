@@ -19,33 +19,14 @@ import com.techacademy.repository.ReportRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
-import lombok.Data;
-
 @Service
-@Data
 public class ReportService {
 
     private final ReportRepository reportRepository;
 
     @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
     public ReportService(ReportRepository reportRepository, PasswordEncoder passwordEncoder) {
         this.reportRepository = reportRepository;
-    }
-
-    public void addReport(String employeeCode, Report report) {
-        // 特定の従業員コードに基づいてEmployeeオブジェクトを検索
-        Employee employee = employeeRepository.findByCode(employeeCode);
-
-        if (employee != null) {
-            // ReportオブジェクトにEmployeeオブジェクトを設定
-            report.setEmployee(employee);
-
-            // Reportオブジェクトをデータベースに保存
-            reportRepository.save(report);
-        }
     }
 
     // 日報保存
@@ -116,6 +97,10 @@ public class ReportService {
 
             reportRepository.save(report);
             return reportRepository.save(report);
+        }
+
+        public void add(Report report, UserDetail userDetails) {
+            // TODO 自動生成されたメソッド・スタブ
 
         }
 

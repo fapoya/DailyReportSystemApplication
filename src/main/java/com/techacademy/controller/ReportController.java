@@ -1,5 +1,6 @@
 package com.techacademy.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,33 +84,28 @@ public class ReportController {
 
             return "reports/new";
         }
-
         // 日報新規登録処理
         @PostMapping(value = "/add")
         public String add(@Validated Report report, BindingResult res, Model model,@AuthenticationPrincipal UserDetail userDetails) {
 
             // 入力チェック
             if (res.hasErrors()) {
-                return create(report, model, userDetails);
+                model.addAttribute("report", report);
+                return "reports/new";
             }
-            // 論理削除を行った従業員番号を指定すると例外となるためtry~catchで対応
-            // (findByIdでは削除フラグがTRUEのデータが取得出来ないため)
-            try {
-                ErrorKinds result = reportService.save(report);
-
-                if (ErrorMessage.contains(result)) {
-                    model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
-                    return create(report, model, userDetails);
-                }
-
-            } catch (DataIntegrityViolationException e) {
-                model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
-                        ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
-                return create(report, model, userDetails);
+            // ログインしているユーザーのEmployeeオブジェクトをReportに設定
+            Employee employee = userDetails.getEmployee(); // ログインユーザーの従業員情報を取得
+            if (employee != null) {
+                report.setEmployee(employee); // ReportオブジェクトにEmployeeを設定
+            } else {
+                // Employee情報が取得できない場合のエラーハンドリング
+                model.addAttribute("errorMessage", "Employee情報が取得できません。");
+                return "reports/new";
             }
+
 
          // Report登録
-
+            reportService.saveReport(report);
             return "redirect:/reports";
         }
 
