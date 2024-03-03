@@ -17,4 +17,3 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     Optional<Report> findByEmployee_CodeAndReportDate(String employeeCode, LocalDate reportDate);
 }
 
-

@@ -110,4 +110,31 @@ public class ReportService {
             return reportRepository.findByEmployee_CodeAndReportDate(employeeCode, reportDate).isPresent();
         }
 
+        //更新画面での日付の重なりを検証するメソッド
+        public boolean isReportDateAlreadyExistsForUpdate(String employeeCode, LocalDate reportDate, Long currentReportId) {
+            Optional<Report> existingReport = reportRepository.findByEmployee_CodeAndReportDate(employeeCode, reportDate);
+            if (existingReport.isPresent()) {
+                // 現在編集中の日報IDと既存の日報IDが異なる場合にのみtrueを返す
+                return !existingReport.get().getId().equals(currentReportId);
+            }
+            return false;
+        }
+
+     // 従業員削除
+        @Transactional
+        public ErrorKinds delete(Long id, UserDetail userDetails) {
+
+            // 自分を削除しようとした場合はエラーメッセージを表示
+            if (id.equals(userDetails.getEmployee().getCode())) {
+                return ErrorKinds.LOGINCHECK_ERROR;
+            }
+            Report report = findByCode(id);
+            LocalDateTime now = LocalDateTime.now();
+            report.setUpdatedAt(now);
+            report.setDeleteFlg(true);
+
+            return ErrorKinds.SUCCESS;
+        }
+
+
 }
