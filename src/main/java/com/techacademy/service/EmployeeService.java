@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Employee;
+import com.techacademy.entity.Report;
 import com.techacademy.repository.EmployeeRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,8 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
     }
+    @Autowired
+    private ReportService reportService;
 
     // 従業員保存
     @Transactional
@@ -84,7 +87,7 @@ public class EmployeeService {
 
     // 従業員削除
     @Transactional
-    public ErrorKinds delete(String code, UserDetail userDetail) {
+    public ErrorKinds delete(String code, UserDetail userDetail, Long id) {
 
         // 自分を削除しようとした場合はエラーメッセージを表示
         if (code.equals(userDetail.getEmployee().getCode())) {
@@ -94,6 +97,15 @@ public class EmployeeService {
         LocalDateTime now = LocalDateTime.now();
         employee.setUpdatedAt(now);
         employee.setDeleteFlg(true);
+
+        // 削除対象の従業員（employee）に紐づいている、日報のリスト（reportList）を取得
+        List<Report> reportList = reportService.findByEmployee(employee);
+
+        // 日報のリスト（reportList）を拡張for文を使って繰り返し
+        for (Report report : reportList) {
+            // 日報（report）のIDを指定して、日報情報を削除
+            reportService.delete(report.getId(), userDetail);
+        }
 
         return ErrorKinds.SUCCESS;
     }

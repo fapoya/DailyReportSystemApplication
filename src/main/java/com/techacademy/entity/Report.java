@@ -2,6 +2,7 @@ package com.techacademy.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.validator.constraints.Length;
@@ -68,4 +69,10 @@ public class Report {
 
     // 更新日時
     private LocalDateTime updatedAt;
+
+    public List<Report> get() {
+        // TODO 自動生成されたメソッド・スタブ
+        return null;
+    }
+
 }

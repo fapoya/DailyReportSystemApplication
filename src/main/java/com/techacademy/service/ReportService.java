@@ -26,8 +26,12 @@ public class ReportService {
     private final ReportRepository reportRepository;
 
     @Autowired
-    public ReportService(ReportRepository reportRepository, PasswordEncoder passwordEncoder) {
+    public ReportService(ReportRepository reportRepository) {
         this.reportRepository = reportRepository;
+    }
+
+    public List<Report> findByEmployee(Employee employee) {
+        return reportRepository.findByEmployee(employee);
     }
 
     // 日報保存
