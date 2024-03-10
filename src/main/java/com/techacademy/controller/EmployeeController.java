@@ -1,5 +1,7 @@
 package com.techacademy.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
@@ -33,10 +36,18 @@ public class EmployeeController {
 
     // 従業員一覧画面
     @GetMapping
-    public String list(Model model) {
+    public String list(Model model, @RequestParam(name = "name", required = false)String name) {
 
-        model.addAttribute("listSize", employeeService.findAll().size());
-        model.addAttribute("employeeList", employeeService.findAll());
+        List<Employee> employees;
+        if(name == null || name.isEmpty()) {
+            employees = employeeService.findAll();
+        }else {
+            employees = employeeService.findByNameLike(name);
+        }
+
+        model.addAttribute("listSize", employees.size());
+        model.addAttribute("employeeList", employees);
+        model.addAttribute("name", name);
 
         return "employees/list";
     }
@@ -62,8 +73,10 @@ public class EmployeeController {
 
         // パスワード空白チェック
         /*
-         * エンティティ側の入力チェックでも実装は行えるが、更新の方でパスワードが空白でもチェックエラーを出さずに
-         * 更新出来る仕様となっているため上記を考慮した場合に別でエラーメッセージを出す方法が簡単だと判断
+         * エンティティ側の入力チェックでも実装は行えるが、更新の方でパスワードが空白で
+         *もチェックエラーを出さずに
+         * 更新出来る仕様となっているため上記を考慮した場合に別でエラーメッセージを出
+         *す方法が簡単だと判断
          */
         if ("".equals(employee.getPassword())) {
             // パスワードが空白だった場合

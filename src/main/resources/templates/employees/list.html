@@ -12,7 +12,12 @@
             <!-- コンテンツ -->
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">従業員 一覧</h1>
-
+                <div>
+                <form th:action="@{/employees}" method="get">
+                    <input type="text" name="name" th:value="${name}" placeholder="従業員名で検索">
+                    <button type="submit">検索</button>
+                </form>
+                </div>
                 <div class="row">
                     <div class="col-xl-11">
                         <div class="card">

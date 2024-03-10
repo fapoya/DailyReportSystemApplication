@@ -66,4 +66,10 @@ public class UserDetail implements UserDetails {
         // 従業員が有効であればtrueを返す
         return true;
     }
+
+    //hasRoleメソッドを追加します。
+    public boolean hasRole(String role) {
+        return getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals(role));
+    }
 }

@@ -140,5 +140,12 @@ public class ReportService {
             return ErrorKinds.SUCCESS;
         }
 
+        public boolean hasPermissionToAccessReport(UserDetail userDetail, Report report) {
+            return userDetail.hasRole("ROLE_ADMIN") ||
+                    (userDetail.hasRole("ROLE_USER") &&
+                     report.getEmployee().getCode().equals
+                     (userDetail.getEmployee().getCode()));
+        }
+
 
 }

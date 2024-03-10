@@ -61,10 +61,28 @@ public class ReportController {
 
         // 日報詳細画面
         @GetMapping(value = "/{id}/")
-        public String detail(@PathVariable Long id, Model model) {
+        public String detail(@PathVariable Long id, Model model
+                , @AuthenticationPrincipal UserDetail userDetails) {
 
-            model.addAttribute("report", reportService.findByCode(id));
-            return "reports/detail";
+            Report report = reportService.findByCode(id);
+
+            //ログインユーザーの権限を取得
+            String role = userDetails.getAuthorities().stream()
+                            .findFirst()
+                            .map(GrantedAuthority::getAuthority)
+                            .orElse("USER");
+
+            /*
+             * 権限が”ADMIN”の場合、または報告書の従業員コードとログインユーザーの
+             * 従業員コードが一致する場合に詳細を表示
+             */
+            if("ADMIN".equals(role) || report.getEmployee().getCode()
+                      .equals(userDetails.getEmployee().getCode())) {
+                model.addAttribute("report", report);
+                return "reports/detail";
+            }else {
+                return "redirect:/reports";
+            }
         }
 
         // 日報新規登録画面
@@ -187,7 +205,7 @@ public class ReportController {
             if (ErrorMessage.contains(result)) {
                 model.addAttribute(ErrorMessage.getErrorName(result), ErrorMessage.getErrorValue(result));
                 model.addAttribute("report", reportService.findByCode(id));
-                return detail(id, model);
+                return detail(id, model, userDetails);
             }
 
             return "redirect:/reports";

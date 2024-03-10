@@ -161,4 +161,8 @@ public class EmployeeService {
         return passwordLength < 8 || 16 < passwordLength;
     }
 
+    public List<Employee> findByNameLike(String name) {
+        return employeeRepository.findByNameLike("%" + name + "%");
+    }
+
 }
